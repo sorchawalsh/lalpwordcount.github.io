@@ -18,164 +18,176 @@
 </html>
 <script>
     function retrieveData() {
-    // This gets all the words that may or may not need to be counted.
-    let words_to_count = document.getElementById("text_tbc").value;
-    // This regex will remove all indicators of illegible graphs from the string.
-    // Removes: *..., *, {, }.
-    let asterisk_regex = /(\*\.\.\.|\*|\*\*|\{|\}|,\^|[^\[*]\^,)/gs;
-    words_to_count = words_to_count.replace(asterisk_regex, "");
-    let line_regex = /\[\^LINE( [0-9*])*\^\]/gsm;
-    words_to_count = words_to_count.replace(line_regex, "");
-    // This is a really complex regex, and needs to be explained capturing group by capturing group.
-     /* GROUP 1: (^|\s|-|—|–) --> ensures that the regex will not match if the tag is found inside a word.
-                 Then the opening [^ must be present.
-        GROUP 2: ([^\[\^]*?) --> matches everything other than [^, captures words we will want to count.
-        GROUP 3: Collection of words indicating a particular type of comment where we want to count the
-                 words that come before the "tag word"
-                 Then we want to match the closing tag ^]
-        GROUP 4: ($|\s|\.|,|!|\?|-|—|–) --> Similar to GROUP 1 but for other side of the tag.
-     */
-    let link_crossed_out = /\[\^[^\^\[\]]+?LINK CROSSED OUT\^\]/gsm;
-    let overwriting = /\[\^[^\^\[\]]+?OVERWRITES[^\^\[]+?\^\]/gsm;
-    let nested_overwriting_crossed_out = /\[\^[^\^\[]+? (OVERWRITES|CROSSED OUT) (\w+?)\^\]/gsm;
-    let nested_crossed_out = /\^\] (CROSSED OUT|RUBBED OUT|INKED OUT|CUT)\^\]/gsm
-    let nested_underlined_with_inverted_commas = /\[\^[^\^\[]+? UNDERLINED, ("|TWO DOTS) BELOW\^\] (RUBBED|CROSSED) OUT\^]/gsm;
-    //pending anne:
-    //let overwriting_with_correction = /[^\^[\^\[\]]+?OVERWRITES[^\^[\^\[\]]+?\^\]\[\^[^\^\[\]]*?(RUBBED OUT|INKED OUT|CROSSED OUT|CUT)\^\]/gsm;
-    //words_to_count = words_to_count.replace(overwriting_with_correction, "corr");
-    words_to_count = words_to_count.replace(overwriting,"overw1");
-    //words_to_count = words_to_count.replace(nested_overwriting_crossed_out, "overw");
-    words_to_count = words_to_count.replace(nested_underlined_with_inverted_commas, "");
-    words_to_count = words_to_count.replace(nested_crossed_out, "");
-    words_to_count = words_to_count.replace(link_crossed_out, "");
+		// This gets all the words that may or may not need to be counted.
+		let words_to_count = document.getElementById("text_tbc").value;
+		console.log(words_to_count)
+		// This regex will remove all indicators of illegible graphs from the string.
+		// Removes: *..., *, {, }.
+		let asterisk_regex = /(\*\.\.\.|\*|\*\*|\{|\}|,\^|[^\[*]\^,)/gs;
+		words_to_count = words_to_count.replace(asterisk_regex, "");
+		console.log(words_to_count)
+		let line_regex = /\[\^LINE( [0-9*])*\^\]/gsm;
+		words_to_count = words_to_count.replace(line_regex, "");
+		console.log(words_to_count)
+		// This is a really complex regex, and needs to be explained capturing group by capturing group.
+		 /* GROUP 1: (^|\s|-|—|–) --> ensures that the regex will not match if the tag is found inside a word.
+					 Then the opening [^ must be present.
+			GROUP 2: ([^\[\^]*?) --> matches everything other than [^, captures words we will want to count.
+			GROUP 3: Collection of words indicating a particular type of comment where we want to count the
+					 words that come before the "tag word"
+					 Then we want to match the closing tag ^]
+			GROUP 4: ($|\s|\.|,|!|\?|-|—|–) --> Similar to GROUP 1 but for other side of the tag.
+		 */
+		let link_crossed_out = /\[\^[^\^\[\]]+?LINK CROSSED OUT\^\]/gsm;
+		let overwriting = /\[\^[^\^\[\]]+?OVERWRITES[^\^\[]+?\^\]/gsm;
+		let nested_overwriting_crossed_out = /\[\^[^\^\[]+? (OVERWRITES|CROSSED OUT) (\w+?)\^\]/gsm;
+		let nested_crossed_out = /(?:\^\]) (CROSSED OUT|RUBBED OUT|INKED OUT|CUT)\^\]/gsm
+		let nested_underlined_with_inverted_commas = /\[\^[^\^\[]+? UNDERLINED, ("|TWO DOTS) BELOW\^\] (RUBBED|CROSSED) OUT\^]/gsm;
+		//pending anne:
+		//let overwriting_with_correction = /[^\^[\^\[\]]+?OVERWRITES[^\^[\^\[\]]+?\^\]\[\^[^\^\[\]]*?(RUBBED OUT|INKED OUT|CROSSED OUT|CUT)\^\]/gsm;
+		//words_to_count = words_to_count.replace(overwriting_with_correction, "corr");
+		words_to_count = words_to_count.replace(overwriting,"overw1");
+		console.log(words_to_count)
+		//words_to_count = words_to_count.replace(nested_overwriting_crossed_out, "overw");
+		words_to_count = words_to_count.replace(nested_underlined_with_inverted_commas, "");
+		console.log(words_to_count)
+		words_to_count = words_to_count.replace(nested_crossed_out[1], "");
+		console.log(words_to_count)
+		words_to_count = words_to_count.replace(link_crossed_out, "");
+		console.log(words_to_count)
 
-    console.log(words_to_count)
 
-    //words_to_count = words_to_count.replace(nested_rubbed_out_post, "")
-    let regex_extra_space_start = /(^|\s|-)\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|SUBSCRIPT, CRAM|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\](\w*)/gsm
-    let regex_extra_space_end = /(\w*)\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|SUBSCRIPT, CRAM|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]($|\s|\.|,|!|\?|-|—|–)/gsm
-    //let regex_extra = /\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]/gs
-    let extra_to_count_start=words_to_count.matchAll(regex_extra_space_start);
-    let n=0;
-    // This is where we will count the words which are present before the tag word.
-    // The loop iterates over all matches for the previous regex found in the string.
-    for(const match of extra_to_count_start) {
-        let m = 0;
-        // The words to be counted will be split up into their own array here.
-        var words = match[2].toString().split(" ");
-        // We iterate over said array, adding to our "local" (in-loop) word count only
-        // if we find a word character.
-        for (let k = 0; k < words.length; k++) {
-            if (words[k].match(/\w+/)) {
-                m++;
-                console.log(words[k])
-            }
-        }
-        // And we add the word count we had for each match to the global word count!
-        n += m;
-    }
-    words_to_count = words_to_count.replace(regex_extra_space_start, " ");
-    let extra_to_count_end=words_to_count.matchAll(regex_extra_space_end);
-    for(const match of extra_to_count_end) {
-        let m = 0;
-        // The words to be counted will be split up into their own array here.
-        var words = match[2].toString().split(" ");
-        // We iterate over said array, adding to our "local" (in-loop) word count only
-        // if we find a word character.
-        for (let k = 0; k < words.length; k++) {
-            if (words[k].match(/\w+/)) {
-                m++;
-                console.log(words[k])
-            }
-        }
-        // And we add the word count we had for each match to the global word count!
-        n += m;
-    }
-    words_to_count = words_to_count.replace(regex_extra_space_end, " ");
-    let regex_extra_intra_word = /(\[\^)([^\^\[\]]+)(INSERTION|INSERTION, CRAM|SUBSCRIPT, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, CROSSED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|TEAR|RUBBED OUT|BLOT|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]/gsm
-    let extra_intra_word = words_to_count.matchAll(regex_extra_intra_word);
-    // Here we are going to count intra-word occurrences of the "extra" tag words and count them IOI
-    // there is more than one. If this happens, the count is a-1, as it is assumed the first graphical unit
-    // is part of the word which precedes the tag.
-    for(const match of extra_intra_word) {
-        console.log(match)
-        let a = 0;
-        // The words to be counted will be split up into their own array here.
-        var words = match[2].toString().split(" ");
-        // We iterate over said array, adding to our "local" (in-loop) word count only
-        // if we find a word character.
-        for (let k = 0; k < words.length; k++) {
-            if (words[k].match(/\w+/)) {
-                console.log(words[k])
-                a++;
-            }
-        }
-    if(a >= 2) {
-        let b = a-1;
-        // And we add the word count we had for each match to the global word count!
-        n += b;
-        }
-    }
-    // The tag word "REPLACES" demands special treatment.
-    // In this case, we want to count the words which are AFTER the tag word.
-    /*
-    Since we're not concerned about whether this is inside a word or not, we start by
-    matching the opening [^.
-    GROUP 1: (.*?) --> matches anything before the tag word, lazy. Not necessarily essential to
-             have as a match group but it doesn't hurt, plus this way we can change our mind about
-             how we want to count things afterwards a bit more easily if need be.
-             EDIT 27.09.2021: i did change my mind. we now count the number of words.
-    GROUP 2: (REPLACES) --> pretty straightforward, detects the tag word "REPLACES".
-    GROUP 3: (.+?(?=\^\])) --> This looks worse than it is. Matches one or more of any character,
-             but no more than necessary (.+?). Then there's a positive lookahead: (?=\^\]) which will
-             ensure that it stops where it should. Not strictly necessary to have the lookahead, but
-             its a nice way to make sure we don't accidentally match ^].
-     */
-    let regex_extra_repl = /\[\^([^\^\[]*?)(REPLACES)\s([^\^\]]*?)\^\]/gms;
-    // I won't re-explain this, it's the same as the prev loop but with different variable names.
-    let extra_to_count_repl=words_to_count.matchAll(regex_extra_repl);
-    for(const match of extra_to_count_repl) {
-        let l = 0;
-        let words_replaces = match[1].toString().split(" ");
-        for (k=0; k<words_replaces.length; k++){
-            if (words_replaces[k].match(/\w+/)) {
-                l++;
-                console.log(words_replaces[k])
-            }
-        }
-        let words_replaced = match[3].toString().split(" ");
-        for (j = 0; j < words_replaced.length; j++) {
-            if (words_replaced[j].match(/\w+/)) {
-                l++;
-                console.log(words_replaced[j])
-            }
-        }
-    n += l;
-    }
-    //let regex_extra_intra_word_repl_0 = /\w+\[\^(.*?)(REPLACES)\s([^\^\]]*?)\^\]\w+/gsm;
-    let regex_extra_intra_word_repl = /(\s|^)\[\^(.*?)(REPLACES)\s(.*?)\^\]\w+/gsm;
-    //words_to_count=words_to_count.replace(regex_extra_intra_word_repl_0, "");
-    words_to_count=words_to_count.replace(regex_extra_intra_word_repl, "");
-    // Now that we've removed the comments we want to keep, this regex will remove all other comments.
-    // Fairly straightforward: it just removes everything it finds between a [^ and a ^].
-    regex_wc=/\[\^(.+?)\^\]/gs;
-    clean_wtc=words_to_count.replace(regex_wc, "");
-    // Split the remaining string on every space char.
-    split_wtc=clean_wtc.split(/\s/);
-    // And now we count!
-    for (var i = 0; i < split_wtc.length; i++) {
-        if (split_wtc[i].match(/(\w)+/)){
-            n++;
-            console.log(split_wtc[i])
-        }
-        else{
+		//words_to_count = words_to_count.replace(nested_rubbed_out_post, "")
+		let regex_extra_space_start = /(^|\s|-)\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|SUBSCRIPT, CRAM|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\](\w*)/gsm
+		let regex_extra_space_end = /(\w*)\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|SUBSCRIPT, CRAM|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]($|\s|\.|,|!|\?|-|—|–)/gsm
+		//let regex_extra = /\[\^([^\[\^]+?)(INSERTION|INSERTION, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|INSERTION, CROSSED OUT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|RUBBED OUT|BLOT|TEAR|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]/gs
+		let extra_to_count_start=words_to_count.matchAll(regex_extra_space_start);
+		let n=0;
+		// This is where we will count the words which are present before the tag word.
+		// The loop iterates over all matches for the previous regex found in the string.
+		for(const match of extra_to_count_start) {
+			let m = 0;
+			// The words to be counted will be split up into their own array here.
+			var words = match[2].toString().split(" ");
+			// We iterate over said array, adding to our "local" (in-loop) word count only
+			// if we find a word character.
+			for (let k = 0; k < words.length; k++) {
+				if (words[k].match(/\w+/)) {
+					m++;
+					console.log(words[k])
+				}
+			}
+			// And we add the word count we had for each match to the global word count!
+			n += m;
+		}
+		words_to_count = words_to_count.replace(regex_extra_space_start, " ");
+		console.log(words_to_count)
+		let extra_to_count_end=words_to_count.matchAll(regex_extra_space_end);
+		for(const match of extra_to_count_end) {
+			let m = 0;
+			// The words to be counted will be split up into their own array here.
+			var words = match[2].toString().split(" ");
+			// We iterate over said array, adding to our "local" (in-loop) word count only
+			// if we find a word character.
+			for (let k = 0; k < words.length; k++) {
+				if (words[k].match(/\w+/)) {
+					m++;
+					console.log(words[k])
+				}
+			}
+			// And we add the word count we had for each match to the global word count!
+			n += m;
+		}
+		words_to_count = words_to_count.replace(regex_extra_space_end, " ");
+		console.log(words_to_count)
+		let regex_extra_intra_word = /(\[\^)([^\^\[\]]+)(INSERTION|INSERTION, CRAM|SUBSCRIPT, CRAM|UNDERLINED, CROSSED OUT|INSERTION, SUBSCRIPT|INSERTION, RUBBED OUT|INSERTION, INKED OUT|INSERTION, CROSSED OUT|INSERTION, SUBSCRIPT, CROSSED OUT|CROSSED OUT|INKED OUT|ERASED|SMUDGED|ERASED\/FADED|FADED|CROSSED\/RUBBED OUT|RUBBED OUT, CROSSED OUT|CROSSED OUT, RUBBED OUT|CRAM, RUBBED OUT|RUBBED OUT, CRAM|CROSSED OUT BY DIFFERENT HAND|TEAR|RUBBED OUT|BLOT|HOLE|CUT|SMUDGE|STAIN|SEAL|DAMAGE|FOLD|EDGE|CRAM)\^\]/gsm
+		let extra_intra_word = words_to_count.matchAll(regex_extra_intra_word);
+		// Here we are going to count intra-word occurrences of the "extra" tag words and count them IOI
+		// there is more than one. If this happens, the count is a-1, as it is assumed the first graphical unit
+		// is part of the word which precedes the tag.
+		for(const match of extra_intra_word) {
+			console.log(match)
+			let a = 0;
+			// The words to be counted will be split up into their own array here.
+			var words = match[2].toString().split(" ");
+			// We iterate over said array, adding to our "local" (in-loop) word count only
+			// if we find a word character.
+			for (let k = 0; k < words.length; k++) {
+				if (words[k].match(/\w+/)) {
+					console.log(words[k])
+					a++;
+				}
+			}
+		if(a >= 2) {
+			let b = a-1;
+			// And we add the word count we had for each match to the global word count!
+			n += b;
+			}
+		}
+		// The tag word "REPLACES" demands special treatment.
+		// In this case, we want to count the words which are AFTER the tag word.
+		/*
+		Since we're not concerned about whether this is inside a word or not, we start by
+		matching the opening [^.
+		GROUP 1: (.*?) --> matches anything before the tag word, lazy. Not necessarily essential to
+				 have as a match group but it doesn't hurt, plus this way we can change our mind about
+				 how we want to count things afterwards a bit more easily if need be.
+				 EDIT 27.09.2021: i did change my mind. we now count the number of words.
+		GROUP 2: (REPLACES) --> pretty straightforward, detects the tag word "REPLACES".
+		GROUP 3: (.+?(?=\^\])) --> This looks worse than it is. Matches one or more of any character,
+				 but no more than necessary (.+?). Then there's a positive lookahead: (?=\^\]) which will
+				 ensure that it stops where it should. Not strictly necessary to have the lookahead, but
+				 its a nice way to make sure we don't accidentally match ^].
+		 */
+		let regex_extra_repl = /\[\^([^\^\[]+?)(REPLACES)\s([^\^\]]*?)\^\]/gms;
+		// I won't re-explain this, it's the same as the prev loop but with different variable names.
+		let extra_to_count_repl=words_to_count.matchAll(regex_extra_repl);
+		for(const match of extra_to_count_repl) {
+			console.log(match)
+			let l = 0;
+			let words_replaces = match[1].toString().split(" ");
+			console.log(words_replaces)
+			for (k=0; k<words_replaces.length; k++){
+				if (words_replaces[k].match(/\w+/)) {
+					l++;
+					console.log(words_replaces[k])
+				}
+			}
+			let words_replaced = match[3].toString().split(" ");
+			for (j = 0; j < words_replaced.length; j++) {
+				if (words_replaced[j].match(/\w+/)) {
+					l++;
+					console.log(words_replaced[j])
+				}
+			}
+		n += l;
+		}
+		//let regex_extra_intra_word_repl_0 = /\w+\[\^(.*?)(REPLACES)\s([^\^\]]*?)\^\]\w+/gsm;
+		let regex_extra_intra_word_repl = /(\s|^)\[\^([^\^\[]*?)(REPLACES)\s(.*?)\^\]\w+/gsm;
+		//words_to_count=words_to_count.replace(regex_extra_intra_word_repl_0, "");
+		words_to_count=words_to_count.replace(regex_extra_intra_word_repl, "");
+		console.log(words_to_count)
+		// Now that we've removed the comments we want to keep, this regex will remove all other comments.
+		// Fairly straightforward: it just removes everything it finds between a [^ and a ^].
+		regex_wc=/\[\^(.+?)\^\]/gs;
+		clean_wtc=words_to_count.replace(regex_wc, "");
+		// Split the remaining string on every space char.
+		split_wtc=clean_wtc.split(/\s/);
+		// And now we count!
+		for (var i = 0; i < split_wtc.length; i++) {
+			if (split_wtc[i].match(/(\w)+/)){
+				n++;
+				console.log(split_wtc[i])
+			}
+			else{
 
-        }
-}
-    // Updates the document with our word count
-    space = document.getElementById("for_wc");
-    space.innerHTML="Word count: " + n;
-    // And we're done!
+			}
+		}
+		// Updates the document with our word count
+		space = document.getElementById("for_wc");
+		space.innerHTML="Word count: " + n;
+		// And we're done!
     };
+
 
 </script>
